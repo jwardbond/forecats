@@ -43,7 +43,13 @@ def generate_pet_pic(data: GenerateRequest, config_dir: str) -> tuple[str, str]:
 
     # Load resources
     prompt_history = load_prompt_history(prompt_history_filepath)
-    images = load_images(data.input_image_paths)
+    images = {}
+    if data.input_image_dir:
+        images.update(load_images_from_dir(data.input_image_dir))
+    if data.input_image_paths:
+        images.update(load_images(data.input_image_paths))
+    if not images:
+        _LOGGER.warning("No images loaded — generation may produce generic results.")
     art_style = random.choice(data.art_styles)
     _LOGGER.info(f"Selected art style: {art_style}")
 
@@ -91,19 +97,34 @@ def save_prompt_history(filepath: Path, history: list[str]) -> None:
     Path(filepath).write_text("\n".join(history))
 
 
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
+
+
+def _resize_image(img_path: Path, max_size: int = 1024) -> Image.Image:
+    img = Image.open(img_path)
+    img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+    return img
+
+
 def load_images(image_paths: list[str], max_size: int = 1024) -> dict[str, Image.Image]:
     """Load and resize images."""
-
-    def resize(img_path: Path) -> Image.Image:
-        img = Image.open(img_path)
-        img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
-        return img
-
     paths = [Path(p) for p in image_paths]
     valid_paths = [p for p in paths if p.exists()]
     if not valid_paths:
         _LOGGER.warning(f"No valid image paths found from: {paths}")
-    return {p.name: resize(p) for p in valid_paths}
+    return {p.name: _resize_image(p, max_size) for p in valid_paths}
+
+
+def load_images_from_dir(dir_path: str, max_size: int = 1024) -> dict[str, Image.Image]:
+    """Load and resize all images from a directory."""
+    path = Path(dir_path)
+    if not path.is_dir():
+        _LOGGER.warning(f"input_image_dir not found: {path}")
+        return {}
+    files = [p for p in path.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS]
+    if not files:
+        _LOGGER.warning(f"No image files found in: {path}")
+    return {p.name: _resize_image(p, max_size) for p in files}
 
 
 def generate_activity(

@@ -48,14 +48,32 @@ blueprint:
       selector:
         object: {}
 
+    input_image_dir:
+      name: Input image directory
+      description: >
+        Path to a folder of pet reference images. All image files in the folder
+        will be used.
+
+        New (no SSH): create a "forecats" folder in the HA Media Browser (Local
+        Media) and set this to /config/media/forecats
+
+        Legacy: set this to /config/forecats_data/input_images/ if you already
+        have images there.
+
+        Leave blank if using explicit paths below instead.
+      default: ""
+      selector:
+        text: {}
+
     input_image_paths:
       name: Input image paths
       description: >
-        List of file paths to reference images of your pets (up to 14 total).
-        Example:
+        Explicit list of file paths to reference images of your pets (up to 14
+        total). Use this or Input image directory (or both). Example:
 
           - /config/forecats_data/input_images/milo.jpg
           - /config/forecats_data/input_images/brutus.jpg
+      default: []
       selector:
         object: {}
 
@@ -127,6 +145,7 @@ trigger:
 variables:
   weather_entity_id: !input weather_entity
   display_profile_input: !input display_profile
+  input_image_dir_input: !input input_image_dir
 
 action:
   - action: weather.get_forecasts
@@ -142,6 +161,7 @@ action:
       forecast: "{{ todays_forecast[weather_entity_id].forecast[0] }}"
       temperature_unit: "{{ state_attr(weather_entity_id, 'temperature_unit') }}"
       pets: !input pets
+      input_image_dir: "{{ input_image_dir_input if input_image_dir_input != '' else none }}"
       input_image_paths: !input input_image_paths
       art_styles: !input art_styles
       image_gen_aspect_ratio: !input image_gen_aspect_ratio

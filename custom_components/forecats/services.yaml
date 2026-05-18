@@ -35,9 +35,19 @@ generate_pet_picture:
               label: Description
               selector:
                 text:
+    input_image_dir:
+      description: >
+        Path to a directory of reference pet images. All image files (jpg, png, webp,
+        etc.) in the directory will be used. Upload via HA Media Browser to
+        /config/media/ and reference the folder here (e.g. /config/media/forecats).
+      required: false
+      selector:
+        text:
     input_image_paths:
-      description: Paths to reference images
-      required: true
+      description: >
+        Explicit list of paths to reference images. Use this or input_image_dir
+        (or both).
+      required: false
       selector:
         object:
     art_styles:

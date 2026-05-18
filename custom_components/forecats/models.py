@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class Pet(BaseModel):
@@ -16,7 +16,8 @@ class GenerateRequest(BaseModel):
     forecast: dict
     temperature_unit: str
     pets: list[Pet]
-    input_image_paths: list[str]
+    input_image_paths: list[str] | None = None
+    input_image_dir: str | None = None
     art_styles: list[str]
 
     image_gen_aspect_ratio: str
@@ -24,3 +25,9 @@ class GenerateRequest(BaseModel):
     final_image_size: str
 
     display_profile: str | None
+
+    @model_validator(mode="after")
+    def check_images_provided(self):
+        if not self.input_image_paths and not self.input_image_dir:
+            raise ValueError("Either input_image_paths or input_image_dir must be provided.")
+        return self

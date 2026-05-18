@@ -64,10 +64,22 @@ Works in better weather
 
 ---
 
-2. **Select and upload cat images**
-  - Choose good pictures of your pets.
-  - Rename the files so the pets' names are in the filenames.
-  - Upload them to `/config/forecats_data/input_images`.
+2. **Select and upload pet images** using one of the following workflows:
+
+  **Option 1 — Media Browser (no SSH required, recommended for new users)**
+  - In HA, go to **Media > Local Media** and create a folder called `forecats`.
+  - Upload your pet photos directly from the browser.
+  - In the blueprint, set **Input image directory** to `/config/media/forecats` and leave **Input image paths** blank.
+
+  **Option 2 — Legacy directory (existing users)**
+  - If you already have images at `/config/forecats_data/input_images/`, no change needed.
+  - Set **Input image directory** to `/config/forecats_data/input_images/`.
+
+  **Option 3 — Explicit paths**
+  - Provide a list of exact file paths via **Input image paths** (useful when you want fine-grained control over which images are used).
+  - `input_image_dir` and `input_image_paths` can be used together; images from both sources are merged.
+
+  In all cases: choose clear photos of your pets and rename the files so the pets' names are in the filenames.
 
 3. **Enable the custom integration** by adding `forecats:` to your configuration file:
 
