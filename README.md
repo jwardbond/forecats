@@ -83,8 +83,16 @@ Works in better weather
   forecats:
   ```
 
-5. **Set up the automation** using the [automation template](https://github.com/jwardbond/forecats/blob/ha_integration/config_examples/automation_fragment.yaml) (add to `config/automations.yaml`).
-  - Make sure to fill out (or remove) any `<>` in the template.
+5. **Set up the automation** using one of the following options:
+
+  **Option A: Blueprint (recommended)**
+  - Go to **Settings > Automations & Scenes > Blueprints** and click **Import Blueprint**.
+  - Paste the URL: `https://github.com/jwardbond/forecats/blob/master/blueprints/automation/forecats/forecats.yaml`
+  - Create an automation from the blueprint and fill in your details.
+
+  **Option B: Manual**
+  - Copy the [automation template](config_examples/automation_fragment.yaml) into `config/automations.yaml`.
+  - Fill out or remove any `<>` placeholders.
 
 6. **Restart your server**
 
@@ -125,7 +133,7 @@ You will need a screen controllable with ESPHOME. I used seeed studio's [e10002 
 ## TODO
 - [x] Enrol in HACS for easier install
 - [ ] Option to save images to dir
-- [ ] Make automation into blueprint for easier install
+- [x] Make automation into blueprint for easier install
 - [ ] Separate e-ink instructions
 - [ ] See if I can make it more configurable from GUI
 - [ ] Support for multiple cities

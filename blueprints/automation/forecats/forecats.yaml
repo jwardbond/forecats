@@ -1,0 +1,152 @@
+blueprint:
+  name: Daily Forecats
+  description: >
+    Generate a daily AI weather-themed illustration of your pets using the
+    Forecats integration. Fetches today's forecast from a weather entity and
+    calls the `forecats.generate_pet_picture` service at a scheduled time.
+  domain: automation
+  source_url: https://github.com/jwardbond/forecats/blob/master/blueprints/automation/forecats/forecats.yaml
+  input:
+    trigger_time:
+      name: Generation time
+      description: Time of day to generate the daily image.
+      default: "05:00:00"
+      selector:
+        time: {}
+
+    weather_entity:
+      name: Weather entity
+      description: The weather entity to pull today's forecast from (e.g. weather.forecast_home).
+      selector:
+        entity:
+          domain: weather
+
+    gemini_api_key:
+      name: Gemini API key
+      description: Your Google AI Studio API key.
+      selector:
+        text: {}
+
+    location:
+      name: Location
+      description: Your location for weather context (e.g. "Toronto, Ontario, Canada").
+      selector:
+        text: {}
+
+    pets:
+      name: Pets
+      description: >
+        List of pets. Each entry must have a `name` and `description`, and
+        optionally a `type` (defaults to "cat"). Example:
+
+          - name: Milo
+            type: cat
+            description: An orange tabby who loves blankets
+          - name: Brutus
+            type: dog
+            description: A large black lab who is always hungry
+      selector:
+        object: {}
+
+    input_image_paths:
+      name: Input image paths
+      description: >
+        List of file paths to reference images of your pets (up to 14 total).
+        Example:
+
+          - /config/forecats_data/input_images/milo.jpg
+          - /config/forecats_data/input_images/brutus.jpg
+      selector:
+        object: {}
+
+    art_styles:
+      name: Art styles
+      description: >
+        List of art styles to randomly choose from each day.
+      default:
+        - comic book
+        - anime
+        - pixar
+        - watercolor
+        - ghibli
+        - disney
+      selector:
+        object: {}
+
+    image_gen_aspect_ratio:
+      name: Image aspect ratio
+      description: Aspect ratio for the generated image.
+      default: "16:9"
+      selector:
+        select:
+          options:
+            - "1:1"
+            - "3:4"
+            - "4:3"
+            - "9:16"
+            - "16:9"
+
+    image_gen_resolution:
+      name: Image resolution
+      description: Resolution of the generated image.
+      default: "1K"
+      selector:
+        select:
+          options:
+            - "1K"
+            - "2K"
+            - "4K"
+
+    final_image_size:
+      name: Final image size
+      description: >
+        Output dimensions after cropping/resizing (e.g. "800x480"). Must be
+        less than or equal to the image resolution.
+      default: "800x480"
+      selector:
+        text: {}
+
+    display_profile:
+      name: Display profile
+      description: >
+        Color profile to optimize the image for your display. Leave blank to
+        keep the original image colors.
+      default: ""
+      selector:
+        select:
+          options:
+            - label: "None (original colors)"
+              value: ""
+            - label: "Spectra 6 (e-ink)"
+              value: "spectra6"
+
+trigger:
+  - trigger: time
+    at: !input trigger_time
+
+variables:
+  weather_entity_id: !input weather_entity
+  display_profile_input: !input display_profile
+
+action:
+  - action: weather.get_forecasts
+    target:
+      entity_id: !input weather_entity
+    data:
+      type: daily
+    response_variable: todays_forecast
+  - action: forecats.generate_pet_picture
+    data:
+      gemini_api_key: !input gemini_api_key
+      location: !input location
+      forecast: "{{ todays_forecast[weather_entity_id].forecast[0] }}"
+      temperature_unit: "{{ state_attr(weather_entity_id, 'temperature_unit') }}"
+      pets: !input pets
+      input_image_paths: !input input_image_paths
+      art_styles: !input art_styles
+      image_gen_aspect_ratio: !input image_gen_aspect_ratio
+      image_gen_resolution: !input image_gen_resolution
+      final_image_size: !input final_image_size
+      display_profile: "{{ display_profile_input if display_profile_input != '' else none }}"
+
+mode: single
