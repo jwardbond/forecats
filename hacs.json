@@ -1,0 +1,5 @@
+{
+  "name": "Daily Forecats",
+  "iot_class": "local_polling",
+  "render_readme": true
+}

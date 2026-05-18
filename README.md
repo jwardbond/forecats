@@ -38,26 +38,38 @@ Works in better weather
 - A google AI studio [API key](https://aistudio.google.com/api-keys). Note that, as of writing, you need to input billing details to get the free credits.
 
 ### Setup
+
+#### Option A: Install via HACS (recommended)
+
+1. Install [HACS](https://hacs.xyz/) if you haven't already.
+2. In HACS, click **Custom repositories** and add `https://github.com/jwardbond/forecats` with category **Integration**.
+3. Search for "Daily Forecats" in HACS and install it.
+4. Restart Home Assistant, then continue from step 2 below.
+
+#### Option B: Manual install
+
 *Do the following in your HA server, using the Terminal & SSH addon, or `docker exec` if you are running a container on a host system*
 
 1. **Create the necessary directory structure** in your Home Assistant server:
 
   ```bash
-  mkdir /config/custom_components && mkdir -p /config/forecats_data/input_images
+  mkdir -p /config/custom_components && mkdir -p /config/forecats_data/input_images
   ```
+
+2. **Download and copy the integration files**
+
+  ```bash
+  cd /tmp && git clone https://github.com/jwardbond/forecats.git && cp -r forecats/custom_components/forecats /config/custom_components/
+  ```
+
+---
 
 2. **Select and upload cat images**
   - Choose good pictures of your pets.
   - Rename the files so the pets' names are in the filenames.
   - Upload them to `/config/forecats_data/input_images`.
 
-3. **Download the repo**
-
-  ```bash
-  cd /config/custom_components && git clone https://github.com/jwardbond/forecats.git
-  ```
-
-4. **Enable the custom integration** by adding `forecats:` to your configuration file:
+3. **Enable the custom integration** by adding `forecats:` to your configuration file:
 
   ```yaml
   # configuration.yaml
@@ -111,7 +123,7 @@ You will need a screen controllable with ESPHOME. I used seeed studio's [e10002 
 
 
 ## TODO
-- [ ] Enrol in HACS for easier install
+- [x] Enrol in HACS for easier install
 - [ ] Option to save images to dir
 - [ ] Make automation into blueprint for easier install
 - [ ] Separate e-ink instructions
